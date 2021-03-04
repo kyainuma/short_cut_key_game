@@ -95,10 +95,18 @@
         document.querySelector('#result').innerHTML = 'NG';
       }
     });
-    setButtonStateRunning();
-    startTime = Date.now();
-    countUp();
   })
+
+  // スペーススタート処理
+  window.addEventListener('keypress', onKeyPress)
+  function onKeyPress(e) {
+    if ( e.keyCode === 32) {
+      setButtonStateRunning();
+      startTime = Date.now();
+      countUp();
+    }
+    return
+  }
 }
 })();
 
