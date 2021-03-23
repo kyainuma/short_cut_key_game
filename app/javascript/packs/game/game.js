@@ -1,116 +1,121 @@
-(function() {
-  'use strict';
-{
-  const timer = document.getElementById('timer');
-  const start = document.getElementById('start');
-  const stop = document.getElementById('stop');
-  const reset = document.getElementById('reset');
+import 'ace-builds/src-noconflict/ace'
+import 'ace-builds/src-noconflict/theme-monokai'
+import 'ace-builds/src-noconflict/mode-html'
 
-  let startTime;
-  let timeoutId;
-  let elapsedTime = 0;
+// 開始時間、クリア時間
+let starttime, cleartime;
 
-  function countUp() {
-    const d = new Date(Date.now() - startTime + elapsedTime);
-    const m = String(d.getMinutes()).padStart(2, '0');
-    const s = String(d.getSeconds()).padStart(2, '0');
-    const ms = String(d.getMilliseconds()).padStart(3, '0');
-    timer.textContent = `${m}:${s}.${ms}`;
+// 総問題数
+const totalQuestions= document.querySelectorAll('.answer').length;
 
-    timeoutId = setTimeout(() => {
-      countUp();
-    }, 10);
+// 出題問題数
+let questionRange = 5;
+
+//　問題セット
+const setQuestions = randomizing();
+
+// 結果テキスト
+let result = document.querySelector('#result');
+
+// 重複しない乱数生成
+function randomizing(){
+  let arr = [];
+  let numArr = [];
+  for(let i=0; i < totalQuestions; i++){
+    arr[i]=i+1;
   }
 
-  function setButtonStateInitial() {
-    start.classList.remove('inactive');
-    stop.classList.add('inactive');
-    reset.classList.add('inactive');
+  for(let j = 0, len = arr.length; j < questionRange; j++, len--) {
+    let rndNum = Math.floor(Math.random()*len);
+    numArr.push(arr[rndNum]);
+    arr[rndNum] = arr[len-1];
   }
+  return numArr;
+}
 
-  function setButtonStateRunning() {
-    start.classList.add('inactive');
-    stop.classList.remove('inactive');
-    reset.classList.add('inactive');
-  }
+// ゲーム開始処理
+function startGame() {
+  // 残り問題数表示
+  result.style.display="block";
 
-  function setButtonStateStopped() {
-    start.classList.remove('inactive');
-    stop.classList.add('inactive');
-    reset.classList.remove('inactive');
-  }
+  // 出題問題表示
+  let question = document.querySelector(`#question-${setQuestions[0]}`);
+  question.style.display="block";
 
-  setButtonStateInitial();
+  // ace設定
+  let editor = ace.edit(document.querySelector(`#editor-${setQuestions[0]}`));
+  editor.setTheme("ace/theme/monokai");
+  editor.getSession().setMode("ace/mode/html");
 
-  // タイマースタート処理
-  start.addEventListener('click', () => {
-    if (start.classList.contains('inactive') === true) {
-      return;
+  // エディタの先頭にフォーカス
+  document.querySelector(`#editor-${setQuestions[0]} .ace_text-input`).focus();
+
+  // 解答判定
+  editor.getSession().on('change', function(){
+    // 解答取得
+    let answer = document.querySelector(`#answer-${setQuestions[0]}`).textContent;
+
+    // ユーザー解答取得
+    let editorValue = ace.edit(document.querySelector(`#editor-${setQuestions[0]}`)).getValue().trim();
+
+    if (editorValue == answer) {
+      correctAnswer(question);
     }
-    setButtonStateRunning();
-    startTime = Date.now();
-    countUp();
-  });
-
-  // タイマーストップ処理
-  stop.addEventListener('click', () => {
-    if (stop.classList.contains('inactive') === true) {
-      return;
-    }
-    setButtonStateStopped();
-    clearTimeout(timeoutId);
-    elapsedTime += Date.now() - startTime;
-  });
-
-  // タイマーリセット処理
-  reset.addEventListener('click', () => {
-    if (reset.classList.contains('inactive') === true) {
-      return;
-    }
-    setButtonStateInitial();
-    timer.textContent = '00:00.000';
-    elapsedTime = 0;
-  });
-
-  window.addEventListener("load", function () {
-    // 問題用エディタ設定
-    var leftEditor = ace.edit("left-editor");
-    leftEditor.setTheme("ace/theme/monokai");
-    leftEditor.getSession().setMode("ace/mode/html");
-    var question = leftEditor.getValue();
-
-    // 回答用エディタ設定
-    var rightEditor = ace.edit("right-editor");
-    rightEditor.setTheme("ace/theme/monokai");
-    rightEditor.getSession().setMode("ace/mode/html");
-
-    // 回答判別処理
-    rightEditor.getSession().on('change', function(){
-      var answer = rightEditor.getValue();
-      if (answer == question) {
-        document.querySelector('#result').innerHTML = 'OK';
-        clearTimeout(timeoutId);
-        elapsedTime += Date.now() - startTime;
-      } else {
-        document.querySelector('#result').innerHTML = 'NG';
-      }
-    });
   })
+}
 
-  // スペーススタート処理
-  window.addEventListener('keypress', onKeyPress)
-  function onKeyPress(e) {
-    if ( e.keyCode === 32) {
-      setButtonStateRunning();
-      startTime = Date.now();
-      countUp();
+// 指定された時間待つ関数を内包したPromiseオブジェクトを返す
+const wait = (sec) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(resolve, sec*1000);
+  });
+};
+
+// 正解処理
+async function correctAnswer(question) {
+  try {
+    await wait(0.5); // ここで1秒間止まります
+    question.style.display="none";
+    setQuestions.shift();
+    questionRange--;
+    result.innerHTML = `残り${questionRange}問`;
+    if (questionRange == 0) {
+      cleartime = Math.round((Date.now() - starttime) / 1000);
+      result.innerHTML = `クリアタイムは${cleartime}秒です`;
+    } else {
+      startGame();
     }
-    return
+  } catch (err) {
+    console.error(err);
   }
 }
-})();
 
-// pre > code直下の特殊文字をエスケープ
-document.querySelectorAll('pre > code').forEach(function (elem) {
+// スペーススタート処理 ロードして1回目のみ発火
+window.addEventListener('keyup', onKeyPress, {once: true})
+function onKeyPress(e) {
+  if ( e.keyCode === 32) {
+    startGame();
+    starttime = Date.now();
+    result.innerHTML = `残り${questionRange}問`;
+    document.querySelector("#description :first-child").innerHTML = '間違えた場合はCommand-Zで戻してください';
+  }
+  return
+}
+
+// ヒント表示切り替え
+window.onload = function(){
+  document.querySelector("#checkbox").onclick = function(){
+    if (this.checked) {
+      document.querySelectorAll(".hint").forEach(hint => hint.style.display = "block");
+    }else{
+      document.querySelectorAll(".hint").forEach(hint => hint.style.display = "none");
+    }
+  }
+}
+
+// pre > codeと.answer直下の特殊文字をエスケープ
+document.querySelectorAll('pre > code, .answer').forEach(function (elem) {
   elem.textContent = elem.innerHTML.trim();
 });
+
+import 'ace-builds/webpack-resolver'

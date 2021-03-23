@@ -1,25 +1,112 @@
 <h1>ラインオペレーション系 Game</h1>
 <div class="center">
-  <p>
-    <input type="checkbox" id ="#" value="#" checked>
-    回答を表示する場合はチェック<br>
-    スペースボタンでゲームスタート
-  </p>
-  <h1 id=result></h1>
-  <div id="timer">00:00.000</div>
-  <div class="controls">
-    <div class="btn" id="start">Start</div>
-    <div class="btn" id="stop">Stop</div>
-    <div class="btn" id="reset">Reset</div>
+  <div>
+    <ul>
+      <li>問題文の指示に合ったショートカットキーを入力してください</li>
+      <li>ショートカットキーがわからない場合はチェックボックスにチェックを入れてください</li>
+      <li>削除系の問題以外で誤って既存のテキストを消してしまった場合はCommand-Zで戻してください ※1</li>
+      <li>※1 既存のテキストを削除すると正解判定されないので注意して下さい</li>
+    </ul>
   </div>
 
-  <div class="editor-container d-flex justify-content-center">
-  <div id="left-editor" class="col-6" style="height: 300px; width: 300px; float:left;"><pre><code><ul>
-    <li>foo</li>
-    <li>baz</li>
-    <li>bar</li>
-</ul></pre></code></div>
+  <div id='description'>
+    <h2>スペースボタンでゲームスタート</h2>
+  </div>
 
-    <div id="right-editor" class="col-6" style="height: 300px; width: 300px; float:right;"></div>
+  <p>
+    <input type="checkbox" id ="checkbox" value="#" checked>
+    回答を表示する場合はチェック
+  </p>
+
+
+  <h2 id=result style="display: none"></h2>
+
+  <div id="question-1" style="display: none">
+    <div>
+      <h2 id='question-article'>一行目を削除してください</h2>
+    </div>
+
+    <div class="hint">
+      <h2>Command-D</h2>
+    </div>
+
+    <div id="editor-1" style="height: 100px; width: 100%;"><pre><code>この行を削除してください</pre></code></div>
+
+    <div id="answer-1" class="answer" style="display: none"></div>
+  </div>
+
+  <div id="question-2" style="display: none">
+    <div>
+      <h2 id='question-article'>一行目を一行コピーしてください</h2>
+    </div>
+
+    <div class="hint">
+      <h2>Command-Option-Down or Command-Option-Up</h2>
+    </div>
+
+    <div id="editor-2" style="height: 100px; width: 100%;"><pre><code>
+    この行を一行コピーしてください
+</pre></code></div>
+
+    <div id="answer-2" class="answer" style="display: none">
+      この行を一行コピーしてください
+この行を一行コピーしてください
+    </div>
+  </div>
+
+  <div id="question-3" style="display: none">
+    <div>
+      <h2 id='question-article'>1行目と2行目を入れ替えてください</h2>
+    </div>
+
+    <div class="hint">
+      <h2>Option-Down or Option-Up</h2>
+    </div>
+
+    <div id="editor-3" style="height: 100px; width: 100%;"><pre><code>
+    このテキストを2行目にしてください
+このテキストを1行目にしてください
+</pre></code></div>
+  </div>
+
+  <div id="answer-3" class="answer" style="display: none">
+    このテキストを1行目にしてください
+このテキストを2行目にしてください
+  </div>
+
+  <div id="question-4" style="display: none">
+    <div>
+      <h2 id='question-article'>'hoge'のみ削除してください</h2>
+    </div>
+
+    <div class="hint">
+      <h2>Option-Fn-Backspace or Option-Delete</h2>
+    </div>
+
+    <div id="editor-4" style="height: 100px; width: 100%;"><pre><code>
+    hoge<li></li>
+</pre></code></div>
+
+    <div id="answer-4" class="answer" style="display: none">
+      <li></li>
+    </div>
+  </div>
+
+  <div id="question-5" style="display: none">
+    <div>
+      <h2 id='question-article'>コメントアウトしてください</h2>
+    </div>
+
+    <div class="hint">
+      <h2>Command-/</h2>
+    </div>
+
+    <div id="editor-5" style="height: 100px; width: 100%;"><pre><code>
+    この行をコメントアウトしてください
+</pre></code></div>
+  </div>
+
+  <div id="answer-5" class="answer" style="display: none">
+    <!--この行をコメントアウトしてください-->
   </div>
 </div>
