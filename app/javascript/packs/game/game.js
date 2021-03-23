@@ -82,6 +82,7 @@ async function correctAnswer(question) {
     if (questionRange == 0) {
       cleartime = Math.round((Date.now() - starttime) / 1000);
       result.innerHTML = `クリアタイムは${cleartime}秒です`;
+      document.querySelector("#finish").style.display="block";
     } else {
       startGame();
     }
